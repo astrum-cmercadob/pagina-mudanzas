@@ -409,16 +409,26 @@ function TruckShowcase({
         </p>
       </div>
 
-      {/* Sticky scroll-scrub container */}
-      <div ref={scrollContainerRef} className="relative h-[340vh]">
+      {/* Sticky scroll-scrub container — slightly shorter on mobile so the
+          section doesn't dominate the page on small viewports */}
+      <div
+        ref={scrollContainerRef}
+        className="relative h-[220vh] md:h-[340vh]"
+      >
         <div className="sticky top-0 h-screen w-full overflow-hidden bg-white">
-          {/* Crystal-clear video, no overlays */}
+          {/* Crystal-clear video, no overlays.
+              `object-cover` on mobile so the 16:9 truck fills the portrait
+              viewport (otherwise it letterboxes into a thin strip).
+              `object-contain` on md+ keeps the full van visible. */}
           <video
             id="hero-video"
             muted
             playsInline
-            preload="auto"
-            className="absolute inset-0 h-full w-full object-contain"
+            // @ts-expect-error legacy iOS attribute, ignored elsewhere
+            webkit-playsinline="true"
+            preload="metadata"
+            poster="/videos/flow-poster.jpg"
+            className="absolute inset-0 h-full w-full object-cover md:object-contain"
           >
             <source src={VIDEO_SRC} type="video/mp4" />
           </video>
@@ -1721,8 +1731,31 @@ export default function App() {
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
 
+    // iOS Safari often ignores preload="auto" on cellular and will not load
+    // video data until a user gesture. Calling .load() explicitly nudges it,
+    // and a one-shot touch listener forces the load on first interaction
+    // (a no-op on browsers that already loaded the data).
+    try {
+      video.load();
+    } catch {
+      /* ignore */
+    }
+    const forceLoad = () => {
+      try {
+        video.load();
+      } catch {
+        /* ignore */
+      }
+      window.removeEventListener('touchstart', forceLoad);
+      window.removeEventListener('click', forceLoad);
+    };
+    window.addEventListener('touchstart', forceLoad, { once: true, passive: true });
+    window.addEventListener('click', forceLoad, { once: true });
+
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      window.removeEventListener('touchstart', forceLoad);
+      window.removeEventListener('click', forceLoad);
     };
   }, []);
 
