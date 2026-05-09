@@ -429,7 +429,7 @@ function TruckShowcase({
             poster="/videos/flow-poster.jpg"
             disableRemotePlayback
             disablePictureInPicture
-            className="absolute inset-0 h-full w-full object-cover md:object-contain bg-white"
+            className="absolute inset-0 h-full w-full object-contain bg-white"
             {...({ 'webkit-playsinline': 'true', 'x5-playsinline': 'true' } as Record<string, string>)}
           />
 
