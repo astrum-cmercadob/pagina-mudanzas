@@ -422,16 +422,16 @@ function TruckShowcase({
               `object-contain` on md+ keeps the full van visible. */}
           <video
             id="hero-video"
+            src={VIDEO_SRC}
             muted
             playsInline
-            // @ts-expect-error legacy iOS attribute, ignored elsewhere
-            webkit-playsinline="true"
             preload="metadata"
             poster="/videos/flow-poster.jpg"
-            className="absolute inset-0 h-full w-full object-cover md:object-contain"
-          >
-            <source src={VIDEO_SRC} type="video/mp4" />
-          </video>
+            disableRemotePlayback
+            disablePictureInPicture
+            className="absolute inset-0 h-full w-full object-cover md:object-contain bg-white"
+            {...({ 'webkit-playsinline': 'true', 'x5-playsinline': 'true' } as Record<string, string>)}
+          />
 
           {/* Side label badge — does not cover the truck */}
           <div className="absolute top-6 left-6 sm:top-8 sm:left-10 z-20">
